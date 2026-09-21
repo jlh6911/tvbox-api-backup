@@ -227,15 +227,22 @@ def scan_interfaces():
             continue
         source = json_file.stem
         try:
-            with open(json_file, "r", encoding="utf-8") as f:
-                data = json.load(f)
-        except (json.JSONDecodeError, Exception) as e:
-            print(f"  跳过 {json_file.name}: {e}")
-            continue
+    with open(json_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
+except (json.JSONDecodeError, Exception) as e:
+    print(f"  跳过 {json_file.name}: {e}")
+    continue
 
-        lives = data.get("lives", [])
-        if not isinstance(lives, list):
-            continue
+# 兼容两种结构：dict 或 list
+if isinstance(data, dict):
+    lives = data.get("lives", [])
+elif isinstance(data, list):
+    lives = data
+else:
+    continue
+
+if not isinstance(lives, list):
+    continue
 
         valid = 0
         for item in lives:
